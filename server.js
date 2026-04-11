@@ -22,8 +22,7 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
-  'https://tauevent-management.vercel.app',
-  'https://tauevent-management.vercel.app/',
+  'https://tau-event.vercel.app',
   process.env.CLIENT_URL
 ].filter(Boolean);
 
