@@ -42,6 +42,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
   'https://tau-events.vercel.app',
+  'https://tau-events.onrender.com',
   process.env.CLIENT_URL
 ].filter(Boolean);
 
