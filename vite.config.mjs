@@ -7,13 +7,27 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'https://tauevent-management.vercel.app',
+        target: 'http://localhost:5000',
         changeOrigin: true,
       },
       '/uploads': {
-        target: 'https://tauevent-management.vercel.app',
+        target: 'http://localhost:5000',
         changeOrigin: true,
       }
     }
+  },
+  build: {
+    outDir: 'dist',
+    minify: 'terser',
+    chunkSizeWarningLimit: 1600,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
+      },
+    },
   }
 });

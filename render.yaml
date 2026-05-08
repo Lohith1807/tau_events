@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: tau-events-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        fromConfigVar: MONGO_URI
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        value: https://tauevent-management.vercel.app

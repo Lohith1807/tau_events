@@ -1,39 +1,46 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { Toaster } from 'react-hot-toast';
 
 // Layout
-import DashboardLayout from './components/layout/DashboardLayout';
+const DashboardLayout = lazy(() => import('./components/layout/DashboardLayout'));
 
 // Pages
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
-import DashboardPage from './pages/DashboardPage';
-import FeedPage from './pages/FeedPage';
-import NotificationsPage from './pages/NotificationsPage';
-import AllEventsPage from './pages/AllEventsPage';
-import ScannerPage from './pages/ScannerPage';
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const FeedPage = lazy(() => import('./pages/FeedPage'));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const AllEventsPage = lazy(() => import('./pages/AllEventsPage'));
+const ScannerPage = lazy(() => import('./pages/ScannerPage'));
 
 // Admin
-import AdminUsersPage from './pages/admin/AdminUsersPage';
-import AdminEventsPage from './pages/admin/AdminEventsPage';
-import AdminPostsPage from './pages/admin/AdminPostsPage';
+const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
+const AdminEventsPage = lazy(() => import('./pages/admin/AdminEventsPage'));
+const AdminPostsPage = lazy(() => import('./pages/admin/AdminPostsPage'));
 
 // Dean
-import DeanEventsPage from './pages/dean/DeanEventsPage';
+const DeanEventsPage = lazy(() => import('./pages/dean/DeanEventsPage'));
 
 // Registrar
-import RegistrarEventsPage from './pages/registrar/RegistrarEventsPage';
+const RegistrarEventsPage = lazy(() => import('./pages/registrar/RegistrarEventsPage'));
 
 // Faculty
-import CreateEventPage from './pages/faculty/CreateEventPage';
-import FacultyEventsPage from './pages/faculty/FacultyEventsPage';
+const CreateEventPage = lazy(() => import('./pages/faculty/CreateEventPage'));
+const FacultyEventsPage = lazy(() => import('./pages/faculty/FacultyEventsPage'));
 
 // Student
-import StudentEventsPage from './pages/student/StudentEventsPage';
-import StudentRegistrationsPage from './pages/student/StudentRegistrationsPage';
+const StudentEventsPage = lazy(() => import('./pages/student/StudentEventsPage'));
+const StudentRegistrationsPage = lazy(() => import('./pages/student/StudentRegistrationsPage'));
+
+// Loading component
+const PageLoader = () => (
+  <div className="loading-page">
+    <div className="loading-spinner" />
+  </div>
+);
 
 const ProtectedRoute = ({ children, roles }) => {
   const { user, loading, isAuthenticated } = useAuth();
@@ -140,7 +147,9 @@ const App = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <Suspense fallback={<PageLoader />}>
+          <AppRoutes />
+        </Suspense>
         <Toaster position="top-center" toastOptions={{
           duration: 3000,
           style: {

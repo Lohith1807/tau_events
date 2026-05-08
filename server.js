@@ -8,6 +8,9 @@ require('dotenv').config();
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'your_default_secret_key_change_in_prod';
 
 
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
+
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const eventRoutes = require('./routes/events');
@@ -18,6 +21,17 @@ const registrationRoutes = require('./routes/registrations');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: { message: 'Too many requests, please try again later.' }
+});
+app.use('/api/', limiter);
+
+// Performance Middleware
+app.use(compression());
+
 // Middleware
 const allowedOrigins = [
   'http://localhost:5173',
@@ -27,8 +41,7 @@ const allowedOrigins = [
   process.env.CLIENT_URL
 ].filter(Boolean);
 
-
-// Middleware
+// CORS
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
@@ -39,9 +52,15 @@ app.use(cors({
   },
   credentials: true
 }));
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Keep-Alive Route for Render
+app.get('/api/keep-alive', (req, res) => {
+  res.status(200).json({ status: 'awake', timestamp: new Date().toISOString() });
+});
 
 // Prevention: Simple NoSQL Injection protection middleware
 app.use((req, res, next) => {
@@ -53,7 +72,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Database Connection with Caching for Serverless
+// Database Connection with Caching for Serverless/Render
 let cachedDb = null;
 
 async function connectToDatabase() {
@@ -87,7 +106,7 @@ app.use(async (req, res, next) => {
   } catch (err) {
     console.error('❌ Database Middleware Error:', err.message);
     res.status(500).json({ 
-      message: 'Database connection failed. Please ensure MONGO_URI is set in Vercel Environment Variables.',
+      message: 'Database connection failed. Please ensure MONGO_URI is set in Environment Variables.',
       error: err.message 
     });
   }
@@ -108,7 +127,7 @@ app.use((err, req, res, next) => {
   
   if (err.message === 'Not allowed by CORS') {
     return res.status(403).json({ 
-      message: 'CORS Blocked: Your origin is not allowed. Check your Vercel Environment Variables.',
+      message: 'CORS Blocked: Your origin is not allowed. Check your Environment Variables.',
       origin: req.headers.origin 
     });
   }
@@ -119,11 +138,18 @@ app.use((err, req, res, next) => {
   });
 });
 
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-  });
-}
+// Always listen on port (Required for Render)
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  
+  // Keep-alive ping (Self-ping every 10 minutes)
+  const RENDER_URL = process.env.RENDER_EXTERNAL_URL;
+  if (RENDER_URL) {
+    setInterval(() => {
+      require('https').get(`${RENDER_URL}/api/keep-alive`);
+    }, 10 * 60 * 1000); // 10 minutes
+  }
+});
 
 module.exports = app;
 

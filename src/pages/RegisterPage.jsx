@@ -123,7 +123,7 @@ const RegisterPage = () => {
       <div className="auth-page">
         <div className="auth-card">
           <div className="auth-logo">
-            <img src="/apollo.png" alt="Apollo Logo" />
+            <img src="/event.png" alt="Event Logo" />
           </div>
           <h1 className="auth-title">Verify Your Email</h1>
           <p style={{ color: 'var(--color-text-secondary)', marginBottom: '24px', fontSize: '0.875rem' }}>
@@ -166,7 +166,7 @@ const RegisterPage = () => {
     <div className="auth-page">
       <div className="auth-card auth-card-scrollable" style={{ maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
         <div className="auth-logo">
-          <img src="/apollo.png" alt="Apollo Logo" />
+          <img src="/event.png" alt="Event Logo" />
         </div>
         <h1 className="auth-title">Account Registration</h1>
 
