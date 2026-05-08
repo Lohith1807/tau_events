@@ -67,6 +67,15 @@ app.get('/api/keep-alive', (req, res) => {
   res.status(200).json({ status: 'awake', timestamp: new Date().toISOString() });
 });
 
+// Root Route to verify server is alive
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    message: 'TAU Event Management API is running',
+    version: '1.0.0',
+    status: 'healthy'
+  });
+});
+
 // Prevention: Simple NoSQL Injection protection middleware
 app.use((req, res, next) => {
   if (req.body && typeof req.body === 'object') {
@@ -118,6 +127,14 @@ app.use(async (req, res, next) => {
 });
 
 
+// Request Logger for Debugging
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  }
+  next();
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -125,6 +142,20 @@ app.use('/api/events', eventRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/registrations', registrationRoutes);
+
+// Alias routes (Fallback if /api is missing)
+app.use('/auth', authRoutes);
+app.use('/users', userRoutes);
+app.use('/events', eventRoutes);
+
+// 404 Handler for undefined routes
+app.use((req, res) => {
+  console.log(`🚫 404 Not Found: ${req.method} ${req.url}`);
+  res.status(404).json({ 
+    message: `Route ${req.method} ${req.url} not found on this server.`,
+    availableRoutes: ['/api/auth', '/api/events', '/api/users']
+  });
+});
 
 // GLOBAL JSON ERROR HANDLER - Catch-all for any 500s
 app.use((err, req, res, next) => {
