@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -83,7 +84,6 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
   
   // 2. Try bcrypt comparison (In case database still has old hashes)
   try {
-    const bcrypt = require('bcryptjs');
     return await bcrypt.compare(candidatePassword, this.password);
   } catch (err) {
     // If it's not a valid hash or bcrypt fails, just return false

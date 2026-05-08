@@ -21,11 +21,16 @@ const registrationRoutes = require('./routes/registrations');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust Proxy for Render/Vercel
+app.set('trust proxy', 1);
+
 // Rate Limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: { message: 'Too many requests, please try again later.' }
+  max: 200, // increased limit to 200
+  message: { message: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use('/api/', limiter);
 

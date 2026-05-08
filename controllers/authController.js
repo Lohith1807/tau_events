@@ -132,7 +132,7 @@ exports.login = async (req, res) => {
     
     // Trim and sanitize inputs
     const cleanEmail = email ? email.trim().toLowerCase() : '';
-    const cleanPassword = password ? password.trim() : '';
+    const cleanPassword = password || ''; // Removed trim() to allow intentional spaces
 
     const user = await User.findOne({ email: cleanEmail });
     
@@ -161,7 +161,7 @@ exports.login = async (req, res) => {
       // Parallelize DB update and Mail send
       await Promise.all([
         user.save(),
-        mailOTP(email, otp, 'Login Security')
+        mailOTP(user.email, otp, 'Login Security')
       ]);
       
       res.json({
