@@ -36,8 +36,7 @@ app.use(compression());
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
-  'https://tauevent-management.vercel.app',
-  'https://tauevent-management.vercel.app/',
+  'https://tau-events.vercel.app',
   process.env.CLIENT_URL
 ].filter(Boolean);
 
